@@ -1,0 +1,85 @@
+﻿<Window x:Class="Catch.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Catch"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="800">
+  
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="1*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="1*"/>
+                <ColumnDefinition Width="1*"/>
+                
+            </Grid.ColumnDefinitions>
+            <Button x:Name="AddOrderButton" Grid.Column="0" Content="Добавить к заказу" FontFamily="Comic Sans MS" Margin="10" Click="AddOrderButton_Click"/>
+
+            <Button x:Name="ViewOrderButton" Grid.Column="1" Content="Просмотр заказа" FontFamily="Comic Sans MS" Margin="10" Click="ViewOrderButton_Click"/>
+
+        </Grid>
+
+
+        <ListView Grid.Row="1" Name="ProductsListView" ItemsSource="{Binding Products}" HorizontalContentAlignment="Stretch">
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="1*"/>
+                            <ColumnDefinition Width="48"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0" Height="48" Width="48" Margin="10">
+                            <Image x:Name="MyImage">
+                                <Image.Style>
+                                    <Style TargetType="Image">
+                                        <Setter Property="Source" Value="{Binding Image}"/>
+
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding Image}" Value="{x:Null}">
+                                                <Setter Property="Source" Value="/Catch;component/Resources/picture.png"/>
+
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Image.Style>
+                            </Image>
+                        </Border>
+
+                        <TextBlock Grid.Column="1">
+                            <Run FontWeight="Bold" FontFamily="Comic Sans MS" Text="{Binding Name}"></Run>
+                            <LineBreak></LineBreak>
+                            <Run FontFamily="Comic Sans MS"  Text="{Binding Description}"></Run>
+                            
+                          
+                            <LineBreak></LineBreak>
+                            <Run FontFamily="Comic Sans MS"  Text="{Binding Price}"></Run>
+                        </TextBlock>
+
+                       
+
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+        </ListView>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Center">
+
+            <Label></Label>
+            <Button FontFamily="Comic Sans MS"   Name="deleteButton" Click="deleteButton_Click" Grid.Column="1" Height="25" Width="199" VerticalAlignment="Top" >Удалить</Button>
+            <Label></Label>
+            <Button FontFamily="Comic Sans MS"  Name="addButton" Click="addButton_Click" Grid.Column="1" Height="25" Width="199" >Добавить</Button>
+            <Label></Label>
+            <Button FontFamily="Comic Sans MS"   Name="redacButton" Click="redacButton_Click" Grid.Column="1" Height="25" Width="199" >Редактировать</Button>
+        </StackPanel>
+
+    </Grid>
+</Window>

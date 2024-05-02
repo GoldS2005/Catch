@@ -1,0 +1,21 @@
+﻿<Window x:Class="Catch.AuthorizationWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Catch"
+        mc:Ignorable="d"
+        Title="AuthorizationWindow" Height="400" Width="300">
+    <Grid>
+        <StackPanel Margin="20">
+            <TextBlock FontFamily="Comic Sans MS" Text="Email:" Margin="5" />
+            <TextBox FontFamily="Comic Sans MS" x:Name="emailTextBox" Margin="5" />
+            <TextBlock FontFamily="Comic Sans MS" Text="Пароль:" Margin="5" />
+            <PasswordBox FontFamily="Comic Sans MS" x:Name="passwordBox" Margin="5" />
+            <TextBlock FontFamily="Comic Sans MS" Text="Роль:" Margin="5" />
+            <ComboBox FontFamily="Comic Sans MS" x:Name="roleComboBox" Margin="5" />
+            <Button x:Name="loginButton" FontFamily="Comic Sans MS" Content="Войти" Margin="5" Click="loginButton_Click" />
+            <TextBlock x:Name="errorTextBlock" FontFamily="Comic Sans MS" Foreground="Red" Margin="5" />
+        </StackPanel>
+    </Grid>
+</Window>

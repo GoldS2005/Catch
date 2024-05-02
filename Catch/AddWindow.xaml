@@ -1,0 +1,57 @@
+﻿<Window x:Class="Catch.AddWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:Catch"
+        mc:Ignorable="d"
+        Title="AddWindow" Height="600" Width="800">
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="320"/>
+            <ColumnDefinition Width="320"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="1" Grid.Column="1" x:Name="ProductBlock">
+            
+            <Label FontFamily="Comic Sans MS">Название</Label>
+            <TextBox FontFamily="Comic Sans MS" Name ="nameTextBox" ></TextBox>
+            <Label FontFamily="Comic Sans MS">Цена</Label>
+            <TextBox FontFamily="Comic Sans MS" Name="priceTextBox" ></TextBox>
+            <TextBlock x:Name="errorTextBlock" Foreground="Red" />
+            <Label FontFamily="Comic Sans MS">Описание</Label>
+            <TextBox FontFamily="Comic Sans MS" Name="descriptionTextBox"></TextBox>
+            
+            <Label FontFamily="Comic Sans MS">Категория</Label>
+            <ComboBox FontFamily="Comic Sans MS" Margin="10" Height="24" Name="cbCategory" DisplayMemberPath="Name"></ComboBox>
+            <Button FontFamily="Comic Sans MS" Name="buttonSave" Click="buttonSave_Click">Добавить</Button>
+            
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Grid.Column="2">
+            <Label FontFamily="Comic Sans MS">Изображение</Label>
+            <Image  Name="ImagePreview" Width="300" Height="236">
+                <Image.Style>
+                    <Style TargetType="Image">
+                        <Setter Property="Source" Value="{Binding Image}"/>
+
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Image}" Value="{x:Null}">
+                                <Setter Property="Source" Value="/Catch;component/Resources/picture.png"/>
+
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Image.Style>
+            </Image>
+            <Button FontFamily="Comic Sans MS" Click="SelectImage_Click" Margin="10,0">Выбрать</Button>
+        </StackPanel>
+    </Grid>
+</Window>
