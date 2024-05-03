@@ -137,6 +137,8 @@ namespace Catch
                 // Создание нового заказа
                 CreateOrder(selectedProducts);
 
+                
+
                 // Открытие окна просмотра заказа
                 var orderWindow = new OrderWindow();
                 orderWindow.ShowDialog();
