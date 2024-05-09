@@ -16,19 +16,19 @@
 
         <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
 
-            <TextBlock Name="PickupPointTextBlock"/>
+            <TextBlock Name="PickupPointTextBlock" FontFamily="Comic Sans MS"/>
         </StackPanel>
 
 
-        
-        <TextBlock Grid.Row="1" Text="Выбранные товары" FontSize="16" Margin="10" FontWeight="Bold"/>
-        <TextBlock Name="DeliveryTextBlock" Grid.Row="1" Text="Срок доставки:"   HorizontalAlignment="Right" FontSize="16" Margin="10" FontWeight="Bold"/>
 
-   
-        <ListView Grid.Row="2" Name="SelectedProductsListView" Margin="10">
+        <TextBlock Grid.Row="1" Text="Выбранные товары" FontSize="16" FontFamily="Comic Sans MS" Margin="10" FontWeight="Bold"/>
+        <TextBlock Name="DeliveryTextBlock" Grid.Row="1" Text="Срок доставки:" FontFamily="Comic Sans MS"   HorizontalAlignment="Right" FontSize="16" Margin="10" FontWeight="Bold"/>
+
+
+        <ListView Grid.Row="2" Name="SelectedProductsListView" Margin="10" FontFamily="Comic Sans MS">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Header="Название" Width="120" DisplayMemberBinding="{Binding Name}"/>
+                    <GridViewColumn Header="Название" Width="120"  DisplayMemberBinding="{Binding Name}"/>
                     <GridViewColumn Header="Описание" Width="200" DisplayMemberBinding="{Binding Description}"/>
                     <GridViewColumn Header="Цена" Width="80" DisplayMemberBinding="{Binding Price}"/>
                     
@@ -37,14 +37,14 @@
             </ListView.View>
         </ListView>
 
-        <TextBlock Name="CodeTextBlock" Grid.Row="3" Margin="10" Text="Код получения:" HorizontalAlignment="Left" FontSize="14" FontWeight="Bold"/>
+        <TextBlock Name="CodeTextBlock" Grid.Row="3" Margin="10" Text="Код получения:" HorizontalAlignment="Left" FontFamily="Comic Sans MS" FontSize="14" FontWeight="Bold"/>
       
         <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
 
-            <TextBlock Name="TotalAmountTextBlock" Text="Общая сумма: " FontSize="14" FontWeight="Bold"/>
+            <TextBlock Name="TotalAmountTextBlock" Text="Общая сумма: " FontFamily="Comic Sans MS" FontSize="14" FontWeight="Bold"/>
             
         </StackPanel>
-        
-        <Button Name="CompleteOrder" Content="Завершить заказ" Grid.Row="3" HorizontalAlignment="Center" Margin="325,10,337,10" Click="CompleteOrder_Click" Width="130" />
+
+        <Button Name="CompleteOrder" Content="Завершить заказ" Grid.Row="3" Height="25" Width="199" HorizontalAlignment="Center" FontFamily="Comic Sans MS"  Click="CompleteOrder_Click"  />
     </Grid>
 </Window>
