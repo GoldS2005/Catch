@@ -28,11 +28,10 @@ namespace Catch
         private DataBaseConnection _db;
         private ObservableCollection<Product> _products;
 
-
-
-
-        private List<Product> selectedProducts = new List<Product>(); // Выбранные товары
-        private decimal orderTotal; // Общая сумма заказа
+        private List<Product> selectedProducts = new List<Product>(); 
+        private decimal orderTotal; 
+        public string Email { get; set; }
+        public int Order { get; set; }
 
 
 
@@ -42,6 +41,7 @@ namespace Catch
 
             _db = new DataBaseConnection("Host=localhost;Port=5432;Username=postgres;Password=1234;Database=postgres");
             _db.Open();
+            LoadPickupPoints();
 
             _products = new ObservableCollection<Product>();
             using (var reader = _db.ExecuteReader("SELECT * FROM products"))
@@ -69,10 +69,28 @@ namespace Catch
             ProductsListView.ItemsSource = _products;
 
 
-
         }
 
-
+        private void LoadPickupPoints()
+        {
+            try
+            {
+               
+                string query = "SELECT * FROM pickup_points";
+                using (var reader = _db.ExecuteReader(query))
+                {
+                    while (reader.Read())
+                    {
+                        cbPickupPoints.Items.Add(new PickupPoint { Id = reader.GetInt32(0), Name = reader.GetString(1) });
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка загрузки пунктов выдачи: " + ex.Message);
+            }
+           
+        }
 
         private void ProductsListView_MouseRightButtonUp(object sender, MouseButtonEventArgs e)
         {
@@ -91,16 +109,32 @@ namespace Catch
            
         }
 
-        private void CreateOrder(List<Product> selectedProducts)
+        private int CreateOrder(List<Product> selectedProducts, string email)
         {
+            int orderId = 0;
             try
             {
-                Customer customer = new Customer();
 
-                using (var command = _db.CreateCommand("INSERT INTO orders (customer_id, status) VALUES (@customerId, 'New') RETURNING id"))
+                int customerId;
+
+                using (var command = _db.CreateCommand("SELECT id FROM customers WHERE email = @email"))
                 {
-                    command.Parameters.AddWithValue("@customerId", customer.Id); // Замените 1 на соответствующий идентификатор заказчика
-                    int orderId = (int)command.ExecuteScalar();
+                    command.Parameters.AddWithValue("@email", email);
+                    
+                    customerId = (int)command.ExecuteScalar();
+                }
+
+               
+
+                PickupPoint selectedPickupPoint = cbPickupPoints.SelectedItem as PickupPoint;
+                int managerId = GetRandomManagerId();
+
+                using (var command = _db.CreateCommand("INSERT INTO orders (customer_id, pickup_point_id, manager_id, status) VALUES (@customerId, @pickuppointId, @managerId, 'Новый') RETURNING id"))
+                {
+                    command.Parameters.AddWithValue("@customerId", customerId); 
+                    command.Parameters.AddWithValue("@pickuppointId", selectedPickupPoint.Id);
+                    command.Parameters.AddWithValue("@managerId", managerId);
+                    orderId = (int)command.ExecuteScalar() ;
 
                     foreach (var product in selectedProducts)
                     {
@@ -119,47 +153,68 @@ namespace Catch
             {
                 MessageBox.Show("Ошибка при формировании заказа: " + ex.Message);
             }
+            return orderId;
         }
     
         private void UpdateInterface()
         {
-            // Отображение кнопки просмотра заказа
+            
             ViewOrderButton.Visibility = (selectedProducts.Count > 0) ? Visibility.Visible : Visibility.Collapsed;
+            cbPickupPoints.Visibility = (selectedProducts.Count > 0) ? Visibility.Visible : Visibility.Collapsed;
         }
 
+        private int GetRandomManagerId()
+        {
+            try
+            {
 
+                using (var command = _db.CreateCommand("SELECT id FROM managers ORDER BY RANDOM() LIMIT 1"))
+                {
+                    return (int)command.ExecuteScalar();
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка при выборе рандомного менеджера: " + ex.Message);
+                return 0;
+            }
+           
+        }
         private void ViewOrderButton_Click(object sender, RoutedEventArgs e)
         {
-
-            // Проверка наличия выбранных товаров
+            string email = Email;
+            
+           
             if (selectedProducts.Count > 0)
             {
-                // Создание нового заказа
-                CreateOrder(selectedProducts);
+                
+              int orderId = CreateOrder(selectedProducts, email);
+
+                if (orderId > 0)
+                { 
+                    PickupPoint selectedPickupPoint = cbPickupPoints.SelectedItem as PickupPoint;
+
+
+                    this.Close();
+                    var orderWindow = new OrderWindow(selectedProducts, orderTotal, selectedPickupPoint.Name, orderId);
+                    orderWindow.ShowDialog();
+                    
+                    if (orderWindow.OrderCreated)
+                    {
+                       selectedProducts.Clear();
+                       orderTotal = 0;
+                       UpdateInterface();
+                    }
+
+                }
+
+               
 
                 
-
-                // Открытие окна просмотра заказа
-                var orderWindow = new OrderWindow();
-                orderWindow.ShowDialog();
-
-                // Очистка выбранных товаров после закрытия окна просмотра заказа
-                if (orderWindow.OrderCreated)
-                {
-                    selectedProducts.Clear();
-                    orderTotal = 0;
-                    UpdateInterface();
-                }
             }
         }
 
-        private void AddOrderButton_Click(object sender, RoutedEventArgs e)
-        {
-           
-
-            
-            
-        }
+        
     
        
 

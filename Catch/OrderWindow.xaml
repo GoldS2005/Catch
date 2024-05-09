@@ -9,53 +9,42 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <!-- Заголовок окна -->
-        <TextBlock Grid.Row="0" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,10">Order Details</TextBlock>
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="10">
 
-        <!-- Панель с информацией о заказе -->
-        <StackPanel Grid.Row="1" Margin="10">
-            <WrapPanel Margin="0,0,0,10">
-                <TextBlock Text="Order ID:" FontWeight="Bold"/>
-                <TextBlock x:Name="OrderIdLabel" Margin="5,0,0,0"/>
-            </WrapPanel>
-            <WrapPanel Margin="0,0,0,10">
-                <TextBlock Text="Order Status:" FontWeight="Bold"/>
-                <TextBlock x:Name="OrderStatusLabel" Margin="5,0,0,0"/>
-            </WrapPanel>
-            <WrapPanel Margin="0,0,0,10">
-                <TextBlock Text="Created At:" FontWeight="Bold"/>
-                <TextBlock x:Name="CreatedAtLabel" Margin="5,0,0,0"/>
-            </WrapPanel>
-            <WrapPanel Margin="0,0,0,10">
-                <TextBlock Text="Updated At:" FontWeight="Bold"/>
-                <TextBlock x:Name="UpdatedAtLabel" Margin="5,0,0,0"/>
-            </WrapPanel>
-
-            <!-- Таблица с позициями заказа -->
-            <DataGrid x:Name="OrderItemsGrid" AutoGenerateColumns="False" CanUserAddRows="False">
-                <DataGrid.Columns>
-                    <DataGridTextColumn Header="Product ID" Binding="{Binding ProductId}"/>
-                    <DataGridTextColumn Header="Quantity" Binding="{Binding Quantity}"/>
-                    <DataGridTextColumn Header="Price" Binding="{Binding Price}"/>
-
-                    <!-- Кнопка удаления -->
-                    <DataGridTemplateColumn Header="">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Button Content="Delete" Click="DeleteButton_Click" Tag="{Binding Id}"/>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                    </DataGridTemplateColumn>
-                </DataGrid.Columns>
-            </DataGrid>
+            <TextBlock Name="PickupPointTextBlock"/>
         </StackPanel>
 
-        <!-- Кнопка завершения заказа -->
-        <Button Grid.Row="2" Content="Finish Order" HorizontalAlignment="Center" Padding="10" Margin="0,10"
-                Click="FinishOrderButton_Click"/>
+
+        
+        <TextBlock Grid.Row="1" Text="Выбранные товары" FontSize="16" Margin="10" FontWeight="Bold"/>
+        <TextBlock Name="DeliveryTextBlock" Grid.Row="1" Text="Срок доставки:"   HorizontalAlignment="Right" FontSize="16" Margin="10" FontWeight="Bold"/>
+
+   
+        <ListView Grid.Row="2" Name="SelectedProductsListView" Margin="10">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Название" Width="120" DisplayMemberBinding="{Binding Name}"/>
+                    <GridViewColumn Header="Описание" Width="200" DisplayMemberBinding="{Binding Description}"/>
+                    <GridViewColumn Header="Цена" Width="80" DisplayMemberBinding="{Binding Price}"/>
+                    
+                    
+                </GridView>
+            </ListView.View>
+        </ListView>
+
+        <TextBlock Name="CodeTextBlock" Grid.Row="3" Margin="10" Text="Код получения:" HorizontalAlignment="Left" FontSize="14" FontWeight="Bold"/>
+      
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+
+            <TextBlock Name="TotalAmountTextBlock" Text="Общая сумма: " FontSize="14" FontWeight="Bold"/>
+            
+        </StackPanel>
+        
+        <Button Name="CompleteOrder" Content="Завершить заказ" Grid.Row="3" HorizontalAlignment="Center" Margin="325,10,337,10" Click="CompleteOrder_Click" Width="130" />
     </Grid>
 </Window>

@@ -24,12 +24,13 @@ namespace Catch
     public partial class AuthorizationWindow : Window
     {
         private DataBaseConnection _db;
+        public string Email { get; set; }
         public AuthorizationWindow()
         {
             InitializeComponent();
             _db = new DataBaseConnection("Host=localhost;Port=5432;Username=postgres;Password=1234;Database=postgres");
 
-            roleComboBox.ItemsSource = new string[] { "Manager", "Customer", "Admin" };
+            roleComboBox.ItemsSource = new string[] { "Менеджер", "Покупатель", "Администратор" };
         }
 
         private void loginButton_Click(object sender, RoutedEventArgs e)
@@ -40,9 +41,9 @@ namespace Catch
 
            
             string tableName = "";
-            if (role == "Manager") tableName = "managers";
-            else if (role == "Customer") tableName = "customers";
-            else if (role == "Admin") tableName = "admins";
+            if (role == "Менеджер") tableName = "managers";
+            else if (role == "Покупатель") tableName = "customers";
+            else if (role == "Администратор") tableName = "admins";
 
            
             try
@@ -65,22 +66,25 @@ namespace Catch
                         if (reader.Read())
                         {
                             var mainWindow = new MainWindow();
-                            if (role == "Manager")
+                            if (role == "Менеждер")
                             {
+                                mainWindow.ViewOrderButton.IsEnabled = false;
                                 mainWindow.addButton.IsEnabled = false;
                                 mainWindow.redacButton.IsEnabled = false;
                                 mainWindow.deleteButton.IsEnabled = false;
                                 mainWindow.ShowDialog();
                             }
-                            else if (role == "Customer")
+                            else if (role == "Покупатель")
                             {
+                                mainWindow.Email = email;
                                 mainWindow.addButton.IsEnabled = false;
                                 mainWindow.redacButton.IsEnabled = false;
                                 mainWindow.deleteButton.IsEnabled = false;
                                 mainWindow.ShowDialog();
                             }
-                            else if (role == "Admin")
+                            else if (role == "Администратор")
                             {
+                                mainWindow.ViewOrderButton.IsEnabled = false;
                                 mainWindow.ShowDialog();
                             }
                                 

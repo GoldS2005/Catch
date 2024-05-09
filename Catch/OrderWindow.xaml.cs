@@ -1,5 +1,6 @@
 ﻿using Catch.Connection;
 using Catch.Connection.Model;
+using iTextSharp.text;
 using iTextSharp.text.pdf;
 using SelectPdf;
 using Syncfusion.Drawing;
@@ -33,174 +34,164 @@ namespace Catch
         private Order _currentOrder;
         private int _orderId;
         private bool _orderCreated;
+        public List<Product> SelectedProducts { get; set; }
+        public decimal OrderTotal { get; set; }
+
+        public string PickupPoint { get; set; }
 
         public bool OrderCreated => _orderCreated;
 
-        public OrderWindow()
+        public OrderWindow(List<Product> selectedProducts, decimal orderTotal, string pickupPoint, int orderId)
         {
             InitializeComponent();
 
             _db = new DataBaseConnection("Host=localhost;Port=5432;Username=postgres;Password=1234;Database=postgres");
+            _db.Open();
+            SelectedProducts = selectedProducts;
+            OrderTotal = orderTotal;
 
+            PickupPoint = pickupPoint;
+            _orderId = orderId;
 
+            SelectedProductsListView.ItemsSource = SelectedProducts;
+            TotalAmountTextBlock.Text = $"Общая сумма: {OrderTotal:C}";
 
-            LoadOrderData();
+            PickupPointTextBlock.Text = PickupPoint;
 
+            CodeTextBlock.Text = $"Код получения: {GenerateRandomCode(3)}";
+            
 
+            int deliveryDays = int.Parse(GenerateDelivery(1));
+            string dayWord;
 
+            switch (deliveryDays)
+            {
+                case 1:
+                    dayWord = "день";
+                    break;
+                case 2:
+                case 3:
+                case 4:
+                    dayWord = "дня";
+                    break;
+                default:
+                    dayWord = "дней";
+                    break;
+            }
+
+            DeliveryTextBlock.Text = $"Срок доставки: {deliveryDays} {dayWord}";
 
 
 
         }
 
-        private void LoadOrderData()
+        private static Random random = new Random();
+        private static string GenerateRandomCode(int length)
+        {
+
+            const string chars = "0123456789";
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        private static string GenerateDelivery(int length)
+        {
+
+            const string chars = "123456";
+            return new string(Enumerable.Repeat(chars, length)
+              .Select(s => s[random.Next(s.Length)]).ToArray());
+        }
+
+        private void CompleteOrder_Click(object sender, RoutedEventArgs e)
         {
             try
             {
-                _db.Open();
-
-                Order order = new Order();
-
-                // Получение информации о заказе
-                var orderQuery = "SELECT * FROM orders WHERE id = @orderId";
-                using (var command = _db.CreateCommand(orderQuery))
+                using (var command = _db.CreateCommand("UPDATE orders SET status = 'Завершен' WHERE id = @orderId"))
                 {
-                    command.Parameters.AddWithValue("@orderId", order.Id);
-                    using (var reader = command.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            _currentOrder = new Order
-                            {
-                                Id = (int)reader["id"],
-                                CustomerId = (int)reader["customer_id"],
-                                ManagerId = (int)reader["manager_id"],
-                                PickupPointId = (int)reader["pickup_point_id"],
-                                Status = (string)reader["status"],
-                                CreatedAt = (DateTime)reader["created_at"],
-                                UpdatedAt = (DateTime)reader["updated_at"],
-                            };
+                    command.Parameters.AddWithValue("@orderId", _orderId); 
+                    int result = command.ExecuteNonQuery();
 
-                            // Отображение информации о заказе
-                            OrderIdLabel.Text = _currentOrder.Id.ToString();
-                            OrderStatusLabel.Text = _currentOrder.Status;
-                            CreatedAtLabel.Text = _currentOrder.CreatedAt.ToString();
-                            UpdatedAtLabel.Text = _currentOrder.UpdatedAt.ToString();
-                        }
+                    if (result == 1)
+                    {
+                        MessageBox.Show("Заказ успешно завершен.");
+                        
+
+                        SaveWindowContentToPdf(this);
+                        this.Close();
+                        MainWindow mainWindow = new MainWindow();
+                        mainWindow.ShowDialog();
+                        
+                    }
+                    else
+                    {
+                        MessageBox.Show("Ошибка при завершении заказа.");
                     }
                 }
-
-                // Получение позиций заказа
-                _orderItems = new ObservableCollection<OrderItem>();
-                var orderItemsQuery = "SELECT * FROM order_items WHERE order_id = @orderId";
-                using (var command = _db.CreateCommand(orderItemsQuery))
-                {
-                    command.Parameters.AddWithValue("@orderId", order.Id);
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            var orderItem = new OrderItem
-                            {
-                                Id = (int)reader["id"],
-                                OrderId = (int)reader["order_id"],
-                                ProductId = (int)reader["product_id"],
-                                Quantity = (int)reader["quantity"],
-                                Price = (decimal)reader["price"]
-                            };
-                            _orderItems.Add(orderItem);
-                        }
-                    }
-                }
-
-                OrderItemsGrid.ItemsSource = _orderItems;
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка загрузки данных заказа: " + ex.Message);
-            }
-            finally
-            {
-                _db.Close();
+                MessageBox.Show("Ошибка при обновлении статуса заказа: " + ex.Message);
             }
         }
 
+        
 
-
-        private void DeleteButton_Click(object sender, RoutedEventArgs e)
+        public void SaveWindowContentToPdf(Window window)
         {
-            // Обработчик события удаления позиции заказа
-            if (OrderItemsGrid.SelectedItem != null)
-            {
-                var selectedOrderItem = (OrderItem)OrderItemsGrid.SelectedItem;
-                _orderItems.Remove(selectedOrderItem);
-
-                try
-                {
-                    _db.Open();
-                    var deleteQuery = "DELETE FROM order_items WHERE id = @orderItemId";
-                    using (var deleteCommand = _db.CreateCommand(deleteQuery))
-                    {
-                        deleteCommand.Parameters.AddWithValue("@orderItemId", selectedOrderItem.Id);
-                        deleteCommand.ExecuteNonQuery();
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ошибка при удалении позиции заказа: " + ex.Message);
-                }
-                finally
-                {
-                    _db.Close();
-                }
-            }
-        }
-
-
-
-        private void FinishOrderButton_Click(object sender, RoutedEventArgs e)
-        {
-            // Завершение заказа
-
-            // Генерация кода получения
-
-            // Создание талона заказа в PDF
-
-            // Сохранение талона заказа в PDF
-
-            // Обновление статуса заказа в базе данных PostgreSQL
-
             try
             {
-                _db.Open();
+                
+                RenderTargetBitmap renderTargetBitmap = new RenderTargetBitmap((int)window.Width, (int)window.Height, 96, 96, PixelFormats.Pbgra32);
+                VisualBrush visualBrush = new VisualBrush(window);
+                DrawingVisual drawingVisual = new DrawingVisual();
+                DrawingContext drawingContext = drawingVisual.RenderOpen();
 
-                Order order = new Order();
-                var updateQuery = "UPDATE orders SET status = 'Completed' WHERE id = @orderId";
-                using (var updateCommand = _db.CreateCommand(updateQuery))
+                using (drawingContext)
                 {
-                    updateCommand.Parameters.AddWithValue("@orderId", order.Id);
-                    updateCommand.ExecuteNonQuery();
+                    drawingContext.DrawRectangle(visualBrush, null, new Rect(new System.Windows.Point(0, 0), new System.Windows.Point(window.Width, window.Height)));
+                }
+                renderTargetBitmap.Render(drawingVisual);
+
+                
+                PngBitmapEncoder pngImage = new PngBitmapEncoder();
+                pngImage.Frames.Add(BitmapFrame.Create(renderTargetBitmap));
+                byte[] imageArray;
+
+                using (MemoryStream outputStream = new MemoryStream())
+                {
+                    pngImage.Save(outputStream);
+                    imageArray = outputStream.ToArray();
                 }
 
-                _orderCreated = true;
-                Close();
+                
+                Document document = new Document(PageSize.A4, 25, 25, 25, 25);
+                string pdfPath = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments) + "\\WindowContent.pdf";
+                PdfWriter writer = PdfWriter.GetInstance(document, new FileStream(pdfPath, FileMode.Create));
+                document.Open();
+
+                iTextSharp.text.Image windowImage = iTextSharp.text.Image.GetInstance(imageArray);
+                windowImage.ScaleToFit(document.PageSize.Width - 50, document.PageSize.Height - 50);
+                document.Add(windowImage);
+
+                document.Close();
+                writer.Close();
+
+                MessageBox.Show($"Талон сохранен в PDF: {pdfPath}");
             }
             catch (Exception ex)
             {
-                MessageBox.Show("Ошибка при завершении заказа: " + ex.Message);
+                MessageBox.Show("Ошибка при сохранении: " + ex.Message);
             }
-            finally
-            {
-                _db.Close();
-            }
-
         }
-
-
-
     }
 
+
 }
+
+
+    
+
+
 
         
  
