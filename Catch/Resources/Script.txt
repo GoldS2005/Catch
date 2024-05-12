@@ -1,0 +1,103 @@
+CREATE TABLE products (
+id SERIAL PRIMARY KEY,
+name VARCHAR(255) NOT NULL,
+description TEXT,
+price DECIMAL(10, 2) NOT NULL,
+category_id INTEGER REFERENCES categories(id),
+image BYTEA
+);
+
+CREATE TABLE categories (
+id SERIAL PRIMARY KEY,
+name VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE pickup_points (
+id SERIAL PRIMARY KEY,
+name VARCHAR(255) NOT NULL,
+address VARCHAR(255) NOT NULL,
+phone_number VARCHAR(255)
+);
+
+CREATE TABLE customers (
+id SERIAL PRIMARY KEY,
+first_name VARCHAR(255) NOT NULL,
+last_name VARCHAR(255) NOT NULL,
+email VARCHAR(255) NOT NULL UNIQUE,
+password VARCHAR(255) NOT NULL,
+phone_number VARCHAR(255) UNIQUE
+);
+
+CREATE TABLE managers (
+id SERIAL PRIMARY KEY,
+first_name VARCHAR(255) NOT NULL,
+last_name VARCHAR(255) NOT NULL,
+email VARCHAR(255) NOT NULL UNIQUE,
+password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE admins (
+id SERIAL PRIMARY KEY,
+first_name VARCHAR(255) NOT NULL,
+last_name VARCHAR(255) NOT NULL,
+email VARCHAR(255) NOT NULL UNIQUE,
+password VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE orders (
+id SERIAL PRIMARY KEY,
+customer_id INTEGER REFERENCES customers(id),
+manager_id INTEGER REFERENCES managers(id),
+pickup_point_id INTEGER REFERENCES pickup_points(id),
+status VARCHAR(255) NOT NULL,
+created_at TIMESTAMP NOT NULL DEFAULT NOW(),
+updated_at TIMESTAMP NOT NULL DEFAULT NOW()
+);
+
+CREATE TABLE order_items (
+id SERIAL PRIMARY KEY,
+order_id INTEGER REFERENCES orders(id),
+product_id INTEGER REFERENCES products(id),
+quantity INTEGER NOT NULL,
+price DECIMAL(10, 2) NOT NULL
+);
+
+
+INSERT INTO categories (name) VALUES ('Удилища'), ('Катушки'), ('Лески'), ('Приманки'), ('Аксессуары');
+
+INSERT INTO products (name, description, price, category_id, image) VALUES
+('Удилище спиннинговое Favorite Blue Bird', 'Удилище спиннинговое Favorite Blue Bird длиной 2,4 метра с тестом 5-21 грамм. Отлично подходит для ловли окуня, щуки и судака.', 5000, 1, ''),
+('Катушка безынерционная Shimano Ultegra', 'Катушка безынерционная Shimano Ultegra 2500 с передаточным числом 5,0:1. Отличается плавным ходом и надежной конструкцией.', 6000, 2, ''),
+('Леска монофильная Salmo Diamond', 'Леска монофильная Salmo Diamond диаметром 0,25 мм и разрывной нагрузкой 5 кг. Подходит для большинства видов рыбалки.', 300, 3, ''),
+('Приманка воблер Rapala Original Floater', 'Приманка воблер Rapala Original Floater длиной 9 см и весом 10 грамм. Имитирует поведение малька и привлекает хищную рыбу.', 500, 4, ''),
+('Аксессуар подсак рыболовный Jaxon', 'Подсак рыболовный Jaxon с диаметром кольца 50 см и глубиной 60 см. Удобен для вываживания крупной рыбы.', 1000, 5, '');
+
+
+INSERT INTO pickup_points (name, address, phone_number) VALUES
+('Пункт выдачи на ул. Ленина', 'Ул. Ленина, д. 10', '+7 (911) 123-45-67'),
+('Пункт выдачи на ул. Советская', 'Ул. Советская, д. 15', '+7 (921) 765-43-21');
+
+INSERT INTO customers (first_name, last_name, email, password, phone_number) VALUES
+('Иван', 'Иванов', 'ivanov@example.com', '123456', '+7 (903) 123-45-67'),
+('Петр', 'Петров', 'petrov@example.com', '654321', '+7 (905) 765-43-21');
+
+
+INSERT INTO managers (first_name, last_name, email, password) VALUES
+('Мария', 'Смирнова', 'smirnova@example.com', 'manager123'),
+('Сергей', 'Козлов', 'kozlov@example.com', 'manager456');
+
+
+INSERT INTO admins (first_name, last_name, email, password) VALUES
+('Администратор', 'Администраторов', 'admin@example.com', 'admin123');
+
+INSERT INTO orders (customer_id, manager_id, pickup_point_id, status, created_at, updated_at) VALUES
+(1, 1, 1, 'Новый', '2023-02-13 12:00:00', '2023-02-13 12:00:00'),
+(2, 2, 2, 'Обрабатывается', '2023-02-14 14:00:00', '2023-02-14 14:00:00'),
+(1, 1, 1, 'Отправлен', '2023-02-15 16:00:00', '2023-02-15 16:00:00');
+
+INSERT INTO order_items (order_id, product_id, quantity, price) VALUES
+(1, 1, 2, 10000),
+(1, 2, 1, 6000),
+(2, 3, 3, 900),
+(2, 4, 2, 1000),
+(3, 5, 1, 1000);
