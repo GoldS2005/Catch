@@ -106,7 +106,7 @@ namespace Catch
         {
             try
             {
-                using (var command = _db.CreateCommand("UPDATE orders SET status = 'Завершен' WHERE id = @orderId"))
+                using (var command = _db.CreateCommand("UPDATE orders SET status = 'Отправлен' WHERE id = @orderId"))
                 {
                     command.Parameters.AddWithValue("@orderId", _orderId); 
                     int result = command.ExecuteNonQuery();
